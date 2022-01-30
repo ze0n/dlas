@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <AssemblyName>Debug.Like.A.Scientist</AssemblyName>
+    <RootNamespace>Debug.Like.A.Scientist</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MongoDB.Driver" Version="2.14.1" />
+    <PackageReference Include="NetMQ" Version="4.0.1.8" />
+  </ItemGroup>
+
+</Project>
