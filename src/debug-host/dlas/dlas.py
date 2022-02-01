@@ -32,7 +32,7 @@ class SessionsDataRepository:
 REPO = SessionsDataRepository()
 
 app = dash.Dash(
-    external_stylesheets=[dbc.themes.BOOTSTRAP],
+    external_stylesheets=[dbc.themes.PULSE],
     suppress_callback_exceptions=True
 )
 
