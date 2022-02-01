@@ -14,7 +14,7 @@ namespace Debug.Like.A.Scientist
 
             if (string.IsNullOrWhiteSpace(existingSessionId))
             {
-                Id = Guid.NewGuid().ToString();
+                Id = DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss-") + Guid.NewGuid().ToString();
             }
             else
             {

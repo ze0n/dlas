@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace Debug.Like.A.Scientist
 {
@@ -16,6 +17,8 @@ namespace Debug.Like.A.Scientist
             return Guid.NewGuid().ToString();
         }
 
+
+        //[Conditional("Debug")]
         public static ScalarReporter Report(double value, string id, string instance = null)
         {
             return (ScalarReporter) Report(value, id, DataType.Scalar, instance);

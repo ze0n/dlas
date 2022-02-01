@@ -1,0 +1,1 @@
+c:\Users\kkn\.virtualenvs\dlas2\Scripts\activate.bat
