@@ -26,23 +26,46 @@ namespace Debug.Like.A.Scientist.Tests
             return randNormal;
         }
 
+        private double[] GenerateVector(int n)
+        {
+            Random rand = new Random();
+            var ret = new double[n];
+            for(int i = 0; i < n; i++)
+            {
+                ret[i] = rand.NextDouble();
+            }
+            return ret;
+        }
+
+        private double[] EvolveVector(int n, double[] vector)
+        {
+            Random rand = new Random();
+            for (int i = 0; i < n; i++)
+            {
+                vector[i] += vector[i] * 0.1 * rand.NextDouble();
+            }
+            return vector;
+        }
+
         [Test]
         public void Test_NormalUsage()
         {
+            var v = GenerateVector(100);
+
             for (int i = 0; i < 300; i++)
             {
-                var b = Math.Sin(i/3.0);
-
                 var a = sample_normal(+1.0, 1.0);
-
-                // (a,b,c,d,e) x<-a y<-c, bde -> selector
-
                 Dlas.Report(a, "A")
                     .AsTimeSeries()
                     .Send();
 
+                var b = Math.Sin(i / 3.0);
                 Dlas.Report(b, "B")
                     .AsTimeSeries()
+                    .Send();
+                
+                v = EvolveVector(100, v);
+                Dlas.Report(v, "V")
                     .Send();
 
                 Thread.Sleep(1000);

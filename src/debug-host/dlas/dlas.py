@@ -218,6 +218,8 @@ def update_var_list(pathname):
     v = list(map(lambda x: dbc.NavItem(dbc.NavLink(f"{x} (Scalar, 35)", active=True, href=f"/sessions/{sessionId}/{x}")), vars))
     return v
 
+flat_map = lambda f, xs: (y for ys in xs for y in f(ys))
+
 @app.callback(dash.dependencies.Output('visualization', 'figure'),
               [
                 dash.dependencies.Input('url', 'pathname'),
@@ -235,66 +237,105 @@ def update_visualization(pathname, n_intervals, vis_type):
     var = elements[2]
     el = REPO.get_session_element(sessionId, var)
 
-    def selector(x):
-        return {
-            "name": x["ValueInfo"]["_id"],
-            "value": x["ValueInfo"]["Value"],
-            "timestamp": x["Context"]["Timestamp"],
-        }
+    varType = el[0]["_t"]
 
-    records = list(map(selector, el))
-
-    df = pd.DataFrame(records)
-
-    if(vis_type == "Histogram"):
-        return {
-                'data': [
-                    {
-                        'x': df['value'],
-                        'text': df['name'],
-                        #'customdata': df['storenum'],
-                        'name': 'Open Date',
-                        'type': 'histogram'
-                    }
-                ],
-                'layout': {
-                    "bargap": 0.2
-                }
+    if(varType == "ScalarReporter"):
+        def scalar_selector(x):
+            return {
+                "name": x["ValueInfo"]["_id"],
+                "value": x["ValueInfo"]["Value"],
+                "timestamp": x["Context"]["Timestamp"],
             }
-    elif(vis_type == "Timeseries"):
-        return {
+
+        records = list(map(scalar_selector, el))
+
+        df = pd.DataFrame(records)
+
+        if(vis_type == "Histogram"):
+            return {
+                    'data': [
+                        {
+                            'x': df['value'],
+                            'text': df['name'],
+                            #'customdata': df['storenum'],
+                            'name': 'Open Date',
+                            'type': 'histogram'
+                        }
+                    ],
+                    'layout': {
+                        "bargap": 0.2
+                    }
+                }
+        elif(vis_type == "Timeseries"):
+            return {
+                    'data': [
+                        {
+                            'x': df['timestamp'],
+                            'y': df['value'],
+                            'text': df['name'],
+                            #'customdata': df['storenum'],
+                            'name': 'Open Date',
+                            'mode': 'lines+markers',
+                            'type': 'scatter'
+                        }
+                    ],
+                    'layout': {
+                        "bargap": 0.2
+                    }
+                }
+        elif(vis_type == "Scatterplot_vs_time"):
+            return {
+                    'data': [
+                        {
+                            'x': df['timestamp'],
+                            'y': df['value'],
+                            'text': df['name'],
+                            #'customdata': df['storenum'],
+                            'name': 'Open Date',
+                            "mode": "markers",
+                            'type': 'scatter'
+                        }
+                    ],
+                    'layout': {
+                        "bargap": 0.2
+                    }
+                }
+    if (varType == "VectorReporter"):
+        def vector_selector(x):
+            ind = 0
+            for v in x["ValueInfo"]["Value"]["_v"]:
+                yield {
+                    "name": x["ValueInfo"]["_id"],
+                    "value": x["ValueInfo"]["Value"]["_v"][ind],
+                    "timestamp": x["Context"]["Timestamp"],
+                    "i": ind
+                }
+                ind += 1
+
+        records = list(flat_map(vector_selector, el))
+
+        df = pd.DataFrame(records)
+
+        if (vis_type == "Scatterplot_vs_time"):
+            return {
                 'data': [
                     {
                         'x': df['timestamp'],
-                        'y': df['value'],
+                        'y': df['i'],
+                        'z': df['value'],
                         'text': df['name'],
-                        #'customdata': df['storenum'],
-                        'name': 'Open Date',
-                        'mode': 'lines+markers',
-                        'type': 'scatter'
-                    }
-                ],
-                'layout': {
-                    "bargap": 0.2
-                }
-            }
-    elif(vis_type == "Scatterplot_vs_time"):
-        return {
-                'data': [
-                    {
-                        'x': df['timestamp'],
-                        'y': df['value'],
-                        'text': df['name'],
-                        #'customdata': df['storenum'],
+                        # 'customdata': df['storenum'],
                         'name': 'Open Date',
                         "mode": "markers",
-                        'type': 'scatter'
+                        'type': 'scatter3d'
                     }
                 ],
                 'layout': {
-                    "bargap": 0.2
                 }
             }
+        else:
+            return {}
+
 
 if __name__ == "__main__":
     app.run_server(debug=True)
